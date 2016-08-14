@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.laulyl.data.declare.po.Place">
+
+	<sql id="selectColumnSQL">
+		<![CDATA[
+	    	SELECT 
+				id id,
+				place_name placeName,
+				x x,
+				y y,
+				sort_index sortIndex,
+				source_id sourceId,
+				place_type placeType,
+				estimate_time estimateTime,
+				description description,
+				state state
+			FROM tr_place
+	    ]]>
+	</sql>
+
+	<sql id="selectCountSQL">
+		<![CDATA[
+	    	SELECT COUNT(1) count FROM tr_place
+	    ]]>
+	</sql>
+
+	<sql id="deleteSQL">
+		<![CDATA[
+	    	DELETE FROM tr_place
+	    ]]>
+	</sql>
+
+	<sql id="updateSQL">
+		UPDATE tr_place
+			<trim prefix="SET" suffixOverrides=",">
+				<if test="null!=prop.placeName and ''!=prop.placeName">place_name=#{prop.placeName},</if>
+				<if test="null!=prop.x">x=#{prop.x},</if>
+				<if test="null!=prop.y">y=#{prop.y},</if>
+				<if test="null!=prop.sortIndex">sort_index=#{prop.sortIndex},</if>
+				<if test="null!=prop.sourceId">source_id=#{prop.sourceId},</if>
+				<if test="null!=prop.placeType">place_type=#{prop.placeType},</if>
+				<if test="null!=prop.estimateTime">estimate_time=#{prop.estimateTime},</if>
+				<if test="null!=prop.description and ''!=prop.description">description=#{prop.description},</if>
+				<if test="null!=prop.state">state=#{prop.state},</if>
+			</trim>
+	</sql>
+
+	<sql id="whereAllSQL">
+		<trim prefix="WHERE" prefixOverrides="AND|OR" suffixOverrides=",">
+			<if test="null!=placeName and ''!=placeName">and place_name like CONCAT('%','${placeName}','%')</if>
+			<if test="null!=x">and x=#{x}</if>
+			<if test="null!=y">and y=#{y}</if>
+			<if test="null!=sortIndex">and sort_index=#{sortIndex}</if>
+			<if test="null!=sourceId">and source_id=#{sourceId}</if>
+			<if test="null!=placeType">and place_type=#{placeType}</if>
+			<if test="null!=startEstimateTime"><![CDATA[ and estimate_time>=#{startEstimateTime}]]></if>
+			<if test="null!=endEstimateTime"><![CDATA[ and estimate_time<=#{endEstimateTime}]]></if>
+			<if test="null!=description and ''!=description">and description like CONCAT('%','${description}','%')</if>
+			<if test="null!=state">and state=#{state}</if>
+			<if test="null!=keys">id IN <foreach item="id" collection="keys" open="(" separator="," close=")">#{id}</foreach></if>
+		</trim>
+	</sql>
+
+	<sql id="whereIdSQL">
+		<![CDATA[
+	    	WHERE id=#{PRIMARYKEY}
+	    ]]>
+	</sql>
+
+	<sql id="orderBySQL">
+		<if test="null!=sortProperty and null!=sortOrder and ''!=sortProperty and ''!=sortOrder ">ORDER BY ${sortProperty} ${sortOrder}</if>
+	</sql>
+
+	<sql id="limitSQL">
+		<if test="null!=startIndex">limit #{startIndex}<if test="null!=endIndex">, #{endIndex}</if></if>
+	</sql>
+
+	<insert id="insert" parameterType="place" useGeneratedKeys="true" keyProperty="id">
+	    <![CDATA[
+	    	INSERT INTO tr_place(place_name,x,y,sort_index,source_id,place_type,estimate_time,description,state)
+			VALUES(#{placeName},#{x},#{y},#{sortIndex},#{sourceId},#{placeType},#{estimateTime},#{description},#{state})
+	     ]]>
+	</insert>
+
+	<delete id="deleteById" parameterType="Long">
+		<include refid="deleteSQL"/>
+		<include refid="whereIdSQL"/>
+	</delete>
+
+	<delete id="delete" parameterType="map">
+		<include refid="deleteSQL"/>
+		<include refid="whereAllSQL"/>
+	</delete>
+
+	<update id="updateById" parameterType="Long">
+		<include refid="updateSQL"/>
+		<include refid="whereIdSQL"/>
+	</update>
+
+	<update id="update" parameterType="map">
+		<include refid="updateSQL"/>
+		<include refid="whereAllSQL"/>
+	</update>
+
+	<select id="selectById" parameterType="Long" resultType="place">
+		<include refid="selectColumnSQL"/>
+		<include refid="whereIdSQL"/>
+	</select>
+
+	<select id="selectList" parameterType="map" resultType="place">
+		<include refid="selectColumnSQL"/>
+		<include refid="whereAllSQL"/>
+		<include refid="orderBySQL"/>
+		<include refid="limitSQL"/>
+	</select>
+
+	<select id="selectCount" parameterType="map" resultType="int">
+		<include refid="selectCountSQL"/>
+		<include refid="whereAllSQL"/>
+	</select>
+</mapper>

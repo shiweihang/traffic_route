@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.laulyl.data.declare.po.Resource">
+
+	<sql id="selectColumnSQL">
+		<![CDATA[
+	    	SELECT 
+				id id,
+				user_id userId,
+				car_id carId,
+				create_time createTime,
+				publish_time publishTime,
+				state state,
+				description description,
+				resource_type resourceType
+			FROM tr_resource
+	    ]]>
+	</sql>
+
+	<sql id="selectCountSQL">
+		<![CDATA[
+	    	SELECT COUNT(1) count FROM tr_resource
+	    ]]>
+	</sql>
+
+	<sql id="deleteSQL">
+		<![CDATA[
+	    	DELETE FROM tr_resource
+	    ]]>
+	</sql>
+
+	<sql id="updateSQL">
+		UPDATE tr_resource
+			<trim prefix="SET" suffixOverrides=",">
+				<if test="null!=prop.userId">user_id=#{prop.userId},</if>
+				<if test="null!=prop.carId">car_id=#{prop.carId},</if>
+				<if test="null!=prop.createTime">create_time=#{prop.createTime},</if>
+				<if test="null!=prop.publishTime">publish_time=#{prop.publishTime},</if>
+				<if test="null!=prop.state">state=#{prop.state},</if>
+				<if test="null!=prop.description and ''!=prop.description">description=#{prop.description},</if>
+				<if test="null!=prop.resourceType">resource_type=#{prop.resourceType},</if>
+			</trim>
+	</sql>
+
+	<sql id="whereAllSQL">
+		<trim prefix="WHERE" prefixOverrides="AND|OR" suffixOverrides=",">
+			<if test="null!=userId">and user_id=#{userId}</if>
+			<if test="null!=carId">and car_id=#{carId}</if>
+			<if test="null!=startCreateTime"><![CDATA[ and create_time>=#{startCreateTime}]]></if>
+			<if test="null!=endCreateTime"><![CDATA[ and create_time<=#{endCreateTime}]]></if>
+			<if test="null!=startPublishTime"><![CDATA[ and publish_time>=#{startPublishTime}]]></if>
+			<if test="null!=endPublishTime"><![CDATA[ and publish_time<=#{endPublishTime}]]></if>
+			<if test="null!=state">and state=#{state}</if>
+			<if test="null!=description and ''!=description">and description like CONCAT('%','${description}','%')</if>
+			<if test="null!=resourceType">and resource_type=#{resourceType}</if>
+			<if test="null!=keys">id IN <foreach item="id" collection="keys" open="(" separator="," close=")">#{id}</foreach></if>
+		</trim>
+	</sql>
+
+	<sql id="whereIdSQL">
+		<![CDATA[
+	    	WHERE id=#{PRIMARYKEY}
+	    ]]>
+	</sql>
+
+	<sql id="orderBySQL">
+		<if test="null!=sortProperty and null!=sortOrder and ''!=sortProperty and ''!=sortOrder ">ORDER BY ${sortProperty} ${sortOrder}</if>
+	</sql>
+
+	<sql id="limitSQL">
+		<if test="null!=startIndex">limit #{startIndex}<if test="null!=endIndex">, #{endIndex}</if></if>
+	</sql>
+
+	<insert id="insert" parameterType="resource" useGeneratedKeys="true" keyProperty="id">
+	    <![CDATA[
+	    	INSERT INTO tr_resource(user_id,car_id,create_time,publish_time,state,description,resource_type)
+			VALUES(#{userId},#{carId},#{createTime},#{publishTime},#{state},#{description},#{resourceType})
+	     ]]>
+	</insert>
+
+	<delete id="deleteById" parameterType="Long">
+		<include refid="deleteSQL"/>
+		<include refid="whereIdSQL"/>
+	</delete>
+
+	<delete id="delete" parameterType="map">
+		<include refid="deleteSQL"/>
+		<include refid="whereAllSQL"/>
+	</delete>
+
+	<update id="updateById" parameterType="Long">
+		<include refid="updateSQL"/>
+		<include refid="whereIdSQL"/>
+	</update>
+
+	<update id="update" parameterType="map">
+		<include refid="updateSQL"/>
+		<include refid="whereAllSQL"/>
+	</update>
+
+	<select id="selectById" parameterType="Long" resultType="resource">
+		<include refid="selectColumnSQL"/>
+		<include refid="whereIdSQL"/>
+	</select>
+
+	<select id="selectList" parameterType="map" resultType="resource">
+		<include refid="selectColumnSQL"/>
+		<include refid="whereAllSQL"/>
+		<include refid="orderBySQL"/>
+		<include refid="limitSQL"/>
+	</select>
+
+	<select id="selectCount" parameterType="map" resultType="int">
+		<include refid="selectCountSQL"/>
+		<include refid="whereAllSQL"/>
+	</select>
+</mapper>

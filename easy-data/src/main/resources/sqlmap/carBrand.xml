@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.laulyl.data.declare.po.CarBrand">
+
+	<sql id="selectColumnSQL">
+		<![CDATA[
+	    	SELECT 
+				id id,
+				brand_name brandName,
+				parent_id parentId,
+				root_id rootId
+			FROM tr_car_brand
+	    ]]>
+	</sql>
+
+	<sql id="selectCountSQL">
+		<![CDATA[
+	    	SELECT COUNT(1) count FROM tr_car_brand
+	    ]]>
+	</sql>
+
+	<sql id="deleteSQL">
+		<![CDATA[
+	    	DELETE FROM tr_car_brand
+	    ]]>
+	</sql>
+
+	<sql id="updateSQL">
+		UPDATE tr_car_brand
+			<trim prefix="SET" suffixOverrides=",">
+				<if test="null!=prop.brandName and ''!=prop.brandName">brand_name=#{prop.brandName},</if>
+				<if test="null!=prop.parentId">parent_id=#{prop.parentId},</if>
+				<if test="null!=prop.rootId">root_id=#{prop.rootId},</if>
+			</trim>
+	</sql>
+
+	<sql id="whereAllSQL">
+		<trim prefix="WHERE" prefixOverrides="AND|OR" suffixOverrides=",">
+			<if test="null!=brandName and ''!=brandName">and brand_name like CONCAT('%','${brandName}','%')</if>
+			<if test="null!=parentId">and parent_id=#{parentId}</if>
+			<if test="null!=rootId">and root_id=#{rootId}</if>
+			<if test="null!=keys">id IN <foreach item="id" collection="keys" open="(" separator="," close=")">#{id}</foreach></if>
+		</trim>
+	</sql>
+
+	<sql id="whereIdSQL">
+		<![CDATA[
+	    	WHERE id=#{PRIMARYKEY}
+	    ]]>
+	</sql>
+
+	<sql id="orderBySQL">
+		<if test="null!=sortProperty and null!=sortOrder and ''!=sortProperty and ''!=sortOrder ">ORDER BY ${sortProperty} ${sortOrder}</if>
+	</sql>
+
+	<sql id="limitSQL">
+		<if test="null!=startIndex">limit #{startIndex}<if test="null!=endIndex">, #{endIndex}</if></if>
+	</sql>
+
+	<insert id="insert" parameterType="carBrand" useGeneratedKeys="true" keyProperty="id">
+	    <![CDATA[
+	    	INSERT INTO tr_car_brand(brand_name,parent_id,root_id)
+			VALUES(#{brandName},#{parentId},#{rootId})
+	     ]]>
+	</insert>
+
+	<delete id="deleteById" parameterType="Long">
+		<include refid="deleteSQL"/>
+		<include refid="whereIdSQL"/>
+	</delete>
+
+	<delete id="delete" parameterType="map">
+		<include refid="deleteSQL"/>
+		<include refid="whereAllSQL"/>
+	</delete>
+
+	<update id="updateById" parameterType="Long">
+		<include refid="updateSQL"/>
+		<include refid="whereIdSQL"/>
+	</update>
+
+	<update id="update" parameterType="map">
+		<include refid="updateSQL"/>
+		<include refid="whereAllSQL"/>
+	</update>
+
+	<select id="selectById" parameterType="Long" resultType="carBrand">
+		<include refid="selectColumnSQL"/>
+		<include refid="whereIdSQL"/>
+	</select>
+
+	<select id="selectList" parameterType="map" resultType="carBrand">
+		<include refid="selectColumnSQL"/>
+		<include refid="whereAllSQL"/>
+		<include refid="orderBySQL"/>
+		<include refid="limitSQL"/>
+	</select>
+
+	<select id="selectCount" parameterType="map" resultType="int">
+		<include refid="selectCountSQL"/>
+		<include refid="whereAllSQL"/>
+	</select>
+</mapper>
